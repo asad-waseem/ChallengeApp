@@ -82,22 +82,7 @@ export default function OnboardingScreen() {
         },
       ]}
     >
-      <Animated.View
-        style={[
-          styles.headingContainer,
-          { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
-        ]}
-      >
-        <Text style={styles.heading}>Just a moment while</Text>
-        <Text style={styles.heading}>we find your match...</Text>
-      </Animated.View>
-
-      <View style={styles.tagsContainer}>
-        {ANIMATION_TAGS.map((tag, index) => (
-          <AnimatedTag key={tag} label={tag} anim={tagAnims[index]} />
-        ))}
-      </View>
-
+      {/* Graffiti design rendered first so it sits behind the content */}
       <Animated.View
         style={[styles.graffitiContainer, { opacity: graffitiAnim }]}
         pointerEvents="none"
@@ -108,6 +93,24 @@ export default function OnboardingScreen() {
           contentFit="contain"
         />
       </Animated.View>
+
+      <View style={styles.contentAbove}>
+        <Animated.View
+          style={[
+            styles.headingContainer,
+            { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+          ]}
+        >
+          <Text style={styles.heading}>Just a moment while</Text>
+          <Text style={styles.heading}>we find your match...</Text>
+        </Animated.View>
+
+        <View style={styles.tagsContainer}>
+          {ANIMATION_TAGS.map((tag, index) => (
+            <AnimatedTag key={tag} label={tag} anim={tagAnims[index]} />
+          ))}
+        </View>
+      </View>
 
       <View style={styles.dotsContainer}>
         <LoadingDots />
@@ -189,6 +192,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: spacing.lg,
   },
+  contentAbove: {
+    zIndex: 1,
+    elevation: 1,
+  },
   headingContainer: {
     marginTop: 80,
     marginBottom: spacing.xl,
@@ -231,6 +238,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 60,
     left: spacing.lg,
+    zIndex: 1,
+    elevation: 1,
   },
   dots: {
     flexDirection: "row",

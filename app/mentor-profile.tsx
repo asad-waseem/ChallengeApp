@@ -19,6 +19,15 @@ import { AudioPlayer } from "@/components/AudioPlayer";
 import * as Haptics from "expo-haptics";
 
 const { width } = Dimensions.get("window");
+const CARD_MARGIN = 14;
+const CARD_RADIUS = 16;
+const CARD_SHADOW = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+  elevation: 3,
+};
 
 export default function MentorProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -41,9 +50,9 @@ export default function MentorProfileScreen() {
     ]).start();
   }, []);
 
-  const handleClose = () => {
+  const handleBack = () => {
     Haptics.selectionAsync();
-    router.push("/");
+    router.back();
   };
 
   const handleContinue = () => {
@@ -66,43 +75,64 @@ export default function MentorProfileScreen() {
         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
       ]}
     >
+      {/* Subtle background shapes behind content */}
+      <View style={styles.backgroundShapes} pointerEvents="none">
+        <Image
+          source={require("../assets/images/graffiti-blue.png")}
+          style={styles.bgShapeBlue}
+          contentFit="contain"
+        />
+        <Image
+          source={require("../assets/images/graffiti-green.png")}
+          style={styles.bgShapeGreen}
+          contentFit="contain"
+        />
+      </View>
+
       <Pressable
-        style={[styles.closeButton, { top: topInset + 12 }]}
-        onPress={handleClose}
+        style={[styles.backButton, { top: topInset + 12 }]}
+        onPress={handleBack}
         hitSlop={12}
       >
-        <Ionicons name="close" size={22} color={colors.textSecondary} />
+        <Ionicons name="chevron-back" size={26} color={colors.text} />
       </Pressable>
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: topInset + 16, paddingBottom: bottomInset + 120 },
+          { paddingTop: topInset + 52, paddingBottom: bottomInset + 120 },
         ]}
         showsVerticalScrollIndicator={false}
       >
         <ProfileHeader />
-        <View style={styles.divider} />
-        <AudioSection />
-        <View style={styles.divider} />
-        <SharedTraitsSection />
-        <View style={styles.divider} />
-        <TextSection title="What I'm working on..." body={MENTOR_DATA.workingOn} />
-        <View style={styles.divider} />
-        <TopicsSection />
-        <View style={styles.divider} />
-        <TextSection
-          title="Advice to my younger self"
-          body={MENTOR_DATA.advice}
-        />
-        <View style={styles.divider} />
-        <SpotifySection />
-        <View style={styles.divider} />
-        <TextSection title="What I'm up to..." body={MENTOR_DATA.whatsUp} />
-        <View style={styles.divider} />
-        <WeekendSection />
-        <View style={styles.divider} />
+        <View style={styles.card}>
+          <AudioSection />
+        </View>
+        <View style={styles.card}>
+          <SharedTraitsSection />
+        </View>
+        <View style={styles.card}>
+          <TextSection title="What I'm working on..." body={MENTOR_DATA.workingOn} />
+        </View>
+        <View style={styles.card}>
+          <TopicsSection />
+        </View>
+        <View style={styles.card}>
+          <TextSection
+            title="Advice to my younger self"
+            body={MENTOR_DATA.advice}
+          />
+        </View>
+        <View style={styles.card}>
+          <SpotifySection />
+        </View>
+        <View style={styles.card}>
+          <TextSection title="What I'm up to..." body={MENTOR_DATA.whatsUp} />
+        </View>
+        <View style={styles.card}>
+          <WeekendSection />
+        </View>
         <NotMatchSection onFindNew={handleFindNew} />
       </ScrollView>
 
@@ -185,28 +215,18 @@ function TextSection({ title, body }: { title: string; body: string }) {
 }
 
 function TopicsSection() {
-  const rows: typeof MENTOR_DATA.topics[] = [];
-  const topics = MENTOR_DATA.topics;
-  for (let i = 0; i < topics.length; i += 2) {
-    rows.push(topics.slice(i, i + 2));
-  }
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Things we can talk about...</Text>
       <View style={styles.topicsGrid}>
-        {rows.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.topicsRow}>
-            {row.map((topic, index) => (
-              <View key={index} style={styles.topicTag}>
-                <Ionicons
-                  name={topic.icon as any}
-                  size={16}
-                  color={colors.textSecondary}
-                />
-                <Text style={styles.topicText}>{topic.label}</Text>
-              </View>
-            ))}
+        {MENTOR_DATA.topics.map((topic, index) => (
+          <View key={index} style={styles.topicTag}>
+            <Ionicons
+              name={topic.icon as any}
+              size={16}
+              color={colors.textSecondary}
+            />
+            <Text style={styles.topicText}>{topic.label}</Text>
           </View>
         ))}
       </View>
@@ -233,8 +253,8 @@ function SpotifySection() {
             {currentlyListening.artist}
           </Text>
         </View>
-        <View style={styles.spotifyLogo}>
-          <Ionicons name="musical-notes" size={18} color={colors.spotifyGreen} />
+        <View style={styles.spotifyLogoBadge}>
+          <Ionicons name="musical-notes" size={16} color={colors.white} />
         </View>
       </View>
     </View>
@@ -252,13 +272,6 @@ function WeekendSection() {
           style={styles.weekendImage}
           contentFit="cover"
         />
-        <View style={styles.graffitiOverlay} pointerEvents="none">
-          <Image
-            source={require("../assets/images/graffiti-green.png")}
-            style={styles.graffitiSmall}
-            contentFit="contain"
-          />
-        </View>
       </View>
     </View>
   );
@@ -281,29 +294,55 @@ function NotMatchSection({ onFindNew }: { onFindNew: () => void }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.backgroundBeige,
   },
-  closeButton: {
+  backgroundShapes: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
+  bgShapeBlue: {
     position: "absolute",
-    right: spacing.lg,
+    top: "15%",
+    right: -width * 0.2,
+    width: width * 0.5,
+    height: width * 0.5,
+    opacity: 0.2,
+  },
+  bgShapeGreen: {
+    position: "absolute",
+    bottom: "20%",
+    left: -width * 0.15,
+    width: width * 0.4,
+    height: width * 0.4,
+    opacity: 0.18,
+  },
+  backButton: {
+    position: "absolute",
+    left: spacing.lg,
     zIndex: 10,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.tagBg,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
   scroll: {
     flex: 1,
+    zIndex: 1,
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,
   },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: CARD_RADIUS,
+    padding: spacing.lg,
+    marginBottom: CARD_MARGIN,
+    ...CARD_SHADOW,
+  },
   profileHeader: {
     alignItems: "center",
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
   meetText: {
     fontSize: fontSizes.xxl + 4,
@@ -324,29 +363,20 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 3,
     borderColor: colors.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 6,
+    ...CARD_SHADOW,
   },
   profileImage: {
     width: "100%",
     height: "100%",
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: spacing.xs,
-  },
   section: {
-    paddingVertical: spacing.lg,
     gap: spacing.md,
   },
   sectionTitle: {
     fontSize: fontSizes.md,
     fontFamily: "DMSans_700Bold",
     color: colors.text,
+    marginBottom: 2,
   },
   bodyText: {
     fontSize: fontSizes.md,
@@ -379,10 +409,8 @@ const styles = StyleSheet.create({
     paddingTop: 3,
   },
   topicsGrid: {
-    gap: spacing.sm,
-  },
-  topicsRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   topicTag: {
@@ -404,16 +432,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.spotifyDark,
     borderRadius: radius.lg,
-    padding: spacing.sm + 4,
+    padding: spacing.md,
     gap: spacing.md,
+    position: "relative",
+    minHeight: 72,
   },
   albumArt: {
-    width: 52,
-    height: 52,
+    width: 56,
+    height: 56,
     borderRadius: radius.sm,
   },
   songInfo: {
     flex: 1,
+    justifyContent: "center",
   },
   songTitle: {
     fontFamily: "DMSans_700Bold",
@@ -424,33 +455,26 @@ const styles = StyleSheet.create({
   artistName: {
     fontFamily: "DMSans_400Regular",
     fontSize: fontSizes.sm,
-    color: "rgba(255,255,255,0.65)",
+    color: "rgba(255,255,255,0.7)",
   },
-  spotifyLogo: {
-    width: 32,
-    height: 32,
+  spotifyLogoBadge: {
+    position: "absolute",
+    top: spacing.sm,
+    right: spacing.sm,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.spotifyGreen,
     alignItems: "center",
     justifyContent: "center",
   },
   weekendImageContainer: {
     borderRadius: radius.lg,
     overflow: "hidden",
-    height: 220,
-    position: "relative",
+    height: 200,
+    marginTop: spacing.sm,
   },
   weekendImage: {
-    width: "100%",
-    height: "100%",
-  },
-  graffitiOverlay: {
-    position: "absolute",
-    right: -20,
-    bottom: -20,
-    width: 130,
-    height: 130,
-    opacity: 0.6,
-  },
-  graffitiSmall: {
     width: "100%",
     height: "100%",
   },
@@ -458,7 +482,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: 2,
   },
   notMatchTitle: {
     fontFamily: "DMSans_700Bold",
@@ -483,10 +508,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.white,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
+    zIndex: 10,
   },
   continueButton: {
     backgroundColor: colors.black,

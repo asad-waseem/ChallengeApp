@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSizes.md,
-    fontFamily: "DMSans_500Medium",
+    fontFamily: "DMSans_700Bold",
     color: colors.text,
   },
   playerRow: {

@@ -37,7 +37,7 @@ export const MENTOR_DATA: MentorData = {
   tagline: "We think you'll really click.",
   profileImage: require('../assets/images/sam-profile.png'),
   audioTitle: 'Why I became a mentor...',
-  audioDuration: '0:43',
+  audioDuration: '0:45',
   sharedTraits: [
     {
       icon: 'moon',
